@@ -2,16 +2,12 @@
 #define FILES_MODULE_H
 
 #define FILE_NAME "data.pass"
-
-typedef struct ACCOUNT_DATA{
-    char platform[256];
-    char name[256];
-    char pass[256];
-} ACCOUNT;
+#define TEMP_FILE_NAME "temp.pass"
 
 int fileAppend(char *text);
+int addAccount(char *platform, char *name, char *pass);
 char *handleData(char *buf, char *p1, char *p2);
-char *readLine(FILE *f, char *buf);
+char *readLine(FILE *file, char *buf);
 int fileRead(ACCOUNT *data);
 
 #endif
@@ -21,20 +17,32 @@ int fileRead(ACCOUNT *data);
 
 int fileAppend(char *text)
 {
-    FILE *f = fopen(FILE_NAME, "a");
+    FILE *file = fopen(FILE_NAME, "a");
 
-    fprintf(f, text);
+    fprintf(file, text);
 
-    fclose(f);
+    fclose(file);
     return 0;
 }
 
+int addAccount(char *platform, char *name, char *pass)
+{
+    fileAppend(" Platform: ");
+    fileAppend(platform);
+    fileAppend(" Username: ");
+    fileAppend(name);
+    fileAppend(" Password: ");
+    fileAppend(pass);
+    fileAppend("\n");
+ 
+    return SUCCESS;
+}
 
 // SECTION OF FUNCTIONS READ AND HANDLE INFORMATION FROM THE FILE
 
 char *handleData(char *buf, char *p1, char *p2)
 {
-    int sub = mod(p2 - p1);
+    int sub = mod(p2 - p1)-1;
 
     int j=0;
     for(int i = 11; i<=sub; ++i, ++j){
@@ -47,15 +55,15 @@ char *handleData(char *buf, char *p1, char *p2)
     return buf;
 }
 
-char *readLine(FILE *f, char *buf)
+char *readLine(FILE *file, char *buf)
 {
     int i = 0;
-    char c = fgetc(f);
+    char c = fgetc(file);
     while(c != EOF && i < SIZE){
         if(c == '\n')
             break;
         buf[i] = c; 
-        c = fgetc(f);
+        c = fgetc(file);
         ++i;
     }
     buf[i] = '\0';
@@ -66,14 +74,14 @@ char *readLine(FILE *f, char *buf)
 int fileRead(ACCOUNT *data)
 {
     char buf[SIZE];
-    FILE *f = fopen(FILE_NAME, "r");
-    if(f == NULL){puts("File isn't exist at the moment."); return ERR;}
+    FILE *file = fopen(FILE_NAME, "r");
+    if(file == NULL){puts("File isn't exist at the moment."); return ERR;}
     
     int i = 0;
 
     char *p1, *p2, *p3;
     do{
-    readLine(f, buf);
+    readLine(file, buf);
     
     p1 = strstr(buf, " Platform: ");
     p2 = strstr(buf, " Username: ");
@@ -86,23 +94,41 @@ int fileRead(ACCOUNT *data)
     }while(p1 != p2);
     data[i].platform[0] = '\0';
 
-    fclose(f);
+    fclose(file);
     return SUCCESS;
 }
 
-int dataOutput(void)
-{
-    ACCOUNT data[128];
-    if(fileRead(data) == ERR) {puts("dataOutput Error"); return ERR;}
+// TO DELETE THE LINE
 
-    printf("%-5s  | %30s | %30s | %20s\n", "№", "PLATFORM", "USERNAME", "PASSWORD");
-    puts("-----+--------------------------------+--------------------------------+---------------------\n");
+int deleteLine(int del_line){
+    FILE *file = fopen(FILE_NAME, "r");
+    FILE *temp = fopen(TEMP_FILE_NAME, "w");
+    char buf[SIZE];
 
-    int i = 0;
-    while(data[i].platform[0] != '\0'){
-        printf("%-5d| %30s | %30s | %20s\n", i+1, data[i].platform, data[i].name, data[i].pass); 
-        ++i;
+    if(file == NULL || temp == NULL)
+    {
+        puts("Err: unable to open/read file(s)");
+        return ERR;
     }
+
+    char keep_reading = true;
+    int cur_line = 1;
+
+    do{
+        fgets(buf, SIZE, file);
+        if(feof(file)) keep_reading = false;
+        else if(cur_line != del_line)
+            fputs(buf, temp);
+
+        ++cur_line;
+    }while(keep_reading);
+
+    fclose(file);
+    fclose(temp);
+
+    remove(FILE_NAME);
+    rename(TEMP_FILE_NAME, FILE_NAME);
+
 
     return SUCCESS;
 }

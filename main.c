@@ -1,13 +1,20 @@
 #define SIZE 256
+#define MAX_ACCOUNTS_AMOUNT 128
 
 typedef enum {
     ERR = -1,
     SUCCESS
 } Status;
 
-const char alphabet[] = {"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789_-?!. ,:@#$%^&*()[]{}\'\"/\\|+=<>"};
+typedef struct ACCOUNT_DATA{
+    char platform[256];
+    char name[256];
+    char pass[256];
+} ACCOUNT;
 
+const char alphabet[] = {"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789_-?!. ,:@#$%^&*()[]{}\'\"/\\|+=<>"};//You can add here any symbol, except of '\0' and/or '\n'. Also you can squence.
 int index_of_char[sizeof(alphabet)];
+int startup_key;
 
 
 int indexInit(void);
@@ -18,10 +25,13 @@ char *encrypt(char *str, char *res, int key);
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
 
 
 #include "files.h"
+#include "menu.h"
 
 // END OF THE HEADER
 
@@ -64,7 +74,7 @@ char *encrypt(char *str, char *res, int key)
         if(cur == ERR)
             return "ERR";
         else if( id > alphabet_size || id < 0 )
-            id = (cur + (key % alphabet_size) + alphabet_size) % alphabet_size;
+            id = (cur + key + alphabet_size) % alphabet_size;
         
         if( id < alphabet_size && id > 0)
             res[i] = alphabet[id];
@@ -77,23 +87,10 @@ char *encrypt(char *str, char *res, int key)
 int main(void)
 {
     indexInit();
-    int key;
     puts("Enter the key:");
-    scanf("%d", &key);
+    scanf("%d", &startup_key);
 
-    char str[SIZE];
-    char decr[SIZE];
-    char encr[SIZE];
-
-    clearBuf();
-
-    printf("\nEnter the message to encrypt\n");
-    fgets(str, SIZE, stdin);
-
-    encrypt(str, encr, key);
-    encrypt(encr, decr, -key);
-    
-    printf("%s", encr);
+    menuCreate();
 
     return SUCCESS;
 }
