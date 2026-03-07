@@ -42,10 +42,10 @@ int addAccount(char *platform, char *name, char *pass)
 
 char *handleData(char *buf, char *p1, char *p2)
 {
-    int sub = mod(p2 - p1)-1;
+    int sub = mod(p2 - p1);
 
     int j=0;
-    for(int i = 11; i<=sub; ++i, ++j){
+    for(int i = 11; i<sub; ++i, ++j){
         if(p1[i] == '\n')
             break;
         buf[j] = p1[i];
@@ -59,7 +59,7 @@ char *readLine(FILE *file, char *buf)
 {
     int i = 0;
     char c = fgetc(file);
-    while(c != EOF && i < SIZE){
+    while(feof(c) && i < SIZE){
         if(c == '\n')
             break;
         buf[i] = c; 
