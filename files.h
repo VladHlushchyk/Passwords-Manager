@@ -5,7 +5,7 @@
 #define TEMP_FILE_NAME "temp.pass"
 
 int fileAppend(char *text);
-int addAccount(char *platform, char *name, char *pass);
+int addAccount(char *platform, char *name, char *mail, char *pass);
 char *handleData(char *buf, char *p1, char *p2);
 char *readLine(FILE *file, char *buf);
 int fileRead(ACCOUNT *data);
@@ -25,12 +25,14 @@ int fileAppend(char *text)
     return 0;
 }
 
-int addAccount(char *platform, char *name, char *pass)
+int addAccount(char *platform, char *name, char *mail, char *pass)
 {
     fileAppend(" Platform: ");
     fileAppend(platform);
     fileAppend(" Username: ");
     fileAppend(name);
+    fileAppend(" el.-mail: ");
+    fileAppend(mail);
     fileAppend(" Password: ");
     fileAppend(pass);
     fileAppend("\n");
@@ -59,7 +61,7 @@ char *readLine(FILE *file, char *buf)
 {
     int i = 0;
     char c = fgetc(file);
-    while(c != EOF && i < SIZE){
+    while(!feof(file) && i < SIZE){
         if(c == '\n')
             break;
         buf[i] = c; 
@@ -79,19 +81,21 @@ int fileRead(ACCOUNT *data)
     
     int i = 0;
 
-    char *p1, *p2, *p3;
+    char *p1, *p2, *p3, *p4;
     do{
     readLine(file, buf);
     
     p1 = strstr(buf, " Platform: ");
     p2 = strstr(buf, " Username: ");
-    p3 = strstr(buf, " Password: ");
+    p3 = strstr(buf, " el.-mail: ");
+    p4 = strstr(buf, " Password: ");
     handleData(data[i].platform, p1, p2);
     handleData(data[i].name, p2, p3);
-    handleData(data[i].pass, p3, p1);
+    handleData(data[i].mail, p3, p4);
+    handleData(data[i].pass, p4, p1);
 
     ++i;
-    }while(p1 != p2);
+    }while(!feof(file));
     data[i].platform[0] = '\0';
 
     fclose(file);

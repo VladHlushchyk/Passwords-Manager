@@ -9,6 +9,7 @@ typedef enum {
 typedef struct ACCOUNT_DATA{
     char platform[256];
     char name[256];
+    char mail[256];
     char pass[256];
 } ACCOUNT;
 

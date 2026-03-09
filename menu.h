@@ -40,6 +40,7 @@ void menuEncrypt(void)
     printf("Enter the key: ");
     scanf("%d", &key);
 
+    clearBuf();
     printf("Enter the message to encrypt:\n");
     fgets(str, SIZE, stdin);
 
@@ -60,17 +61,20 @@ void menuAddLine(void)
     fgets(normal.platform, SIZE, stdin);
     puts("\nEnter the Username, of your account:");
     fgets(normal.name, SIZE, stdin);
+    puts("\nEnter e-mail:");
+    fgets(normal.mail, SIZE, stdin);
     puts("\nEnter the Password:");
     fgets(normal.pass, SIZE, stdin);
 
     encrypt(normal.platform, encrypted.platform, startup_key);
     encrypt(normal.name, encrypted.name, startup_key);
+    encrypt(normal.mail, encrypted.mail, startup_key);
     encrypt(normal.pass, encrypted.pass, startup_key);
 
-    addAccount(encrypted.platform, encrypted.name, encrypted.pass);
+    addAccount(encrypted.platform, encrypted.name, encrypted.mail, encrypted.pass);
 
     system("cls");
-    printf("Line:\n Platform: %s Username: %s Password: %s\n was successfully added\n\n", encrypted.platform, encrypted.name, encrypted.pass);
+    printf("Line:\n Platform: %s Username: %s el.-mail: %s Password: %s\n was successfully added\n\n", encrypted.platform, encrypted.name, encrypted.mail, encrypted.pass);
     menuCreate();
 }
 
@@ -98,16 +102,17 @@ void dataOutput(void)
     ACCOUNT data[MAX_ACCOUNTS_AMOUNT];
     if(fileRead(data) == ERR) {puts("dataOutput Error"); return;}
 
-    printf("%-5s  | %30s | %30s | %20s\n", "№", "PLATFORM", "USERNAME", "PASSWORD");
-    puts("-----+--------------------------------+--------------------------------+---------------------\n");
+    printf("%-5s  | %30s | %30s | %30s | %20s\n", "№", "PLATFORM", "USERNAME", "E-MAIL", "PASSWORD");
+    printf("-----+--------------------------------+--------------------------------+--------------------------------+---------------------\n");
 
     int i = 0;
     while(data[i].platform[0] != '\0'){
         encrypt(data[i].platform, decrypted_data[i].platform, -startup_key);
         encrypt(data[i].name, decrypted_data[i].name, -startup_key);
+        encrypt(data[i].mail, decrypted_data[i].mail, -startup_key);
         encrypt(data[i].pass, decrypted_data[i].pass, -startup_key);
 
-        printf("%-5d| %30s | %30s | %20s\n", i+1, decrypted_data[i].platform, decrypted_data[i].name, decrypted_data[i].pass);
+        printf("%-5d| %30s | %30s | %30s | %20s\n", i+1, decrypted_data[i].platform, decrypted_data[i].name, decrypted_data[i].mail, decrypted_data[i].pass);
         ++i;
     }
 
