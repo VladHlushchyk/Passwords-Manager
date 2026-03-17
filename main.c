@@ -14,7 +14,7 @@ typedef struct ACCOUNT_DATA{
 } ACCOUNT;
 
 const char alphabet[] = {"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789_-?!. ,:@#$%^&*()[]{}\'\"/\\|+=<>"};//You can add here any symbol, except of '\0' and/or '\n'. Also you can change sequence.
-int index_of_char[sizeof(alphabet)];
+int index_of_char[256];
 int startup_key;
 
 
@@ -90,6 +90,7 @@ int main(void)
     indexInit();
     printf("Enter the key: ");
     scanf("%d", &startup_key);
+    clearBuf();
 
     system("cls");
     menuCreate();
